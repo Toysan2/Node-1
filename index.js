@@ -1,30 +1,42 @@
+const { Command } = require("commander");
+const program = new Command();
 const contactsOperations = require("./contacts");
 
-async function main() {
-  try {
-    console.log("Listing all contacts:");
+program.description("Contact management system");
+
+program
+  .command("list")
+  .description("List all contacts")
+  .action(async () => {
     console.log(await contactsOperations.listContacts());
+  });
 
-    console.log("\nGetting contact by ID:");
+program
+  .command("get")
+  .description("Get a contact by id")
+  .requiredOption("-i, --id <id>", "Contact ID")
+  .action(async (cmd) => {
+    console.log(await contactsOperations.getContactById(cmd.id));
+  });
+
+program
+  .command("add")
+  .description("Add a new contact")
+  .requiredOption("-n, --name <name>", "Contact name")
+  .option("-e, --email <email>", "Contact email")
+  .option("-p, --phone <phone>", "Contact phone")
+  .action(async (cmd) => {
     console.log(
-      await contactsOperations.getContactById("AeHIrLTr6JkxGE6SN-0Rw")
+      await contactsOperations.addContact(cmd.name, cmd.email, cmd.phone)
     );
+  });
 
-    console.log("\nAdding a new contact:");
-    const newContact = await contactsOperations.addContact(
-      "Jan Kowalski",
-      "jan@example.com",
-      "123-456-789"
-    );
-    console.log(newContact);
+program
+  .command("remove")
+  .description("Remove a contact")
+  .requiredOption("-i, --id <id>", "Contact ID")
+  .action(async (cmd) => {
+    console.log(await contactsOperations.removeContact(cmd.id));
+  });
 
-    console.log("\nRemoving a contact:");
-    console.log(
-      await contactsOperations.removeContact("AeHIrLTr6JkxGE6SN-0Rw")
-    );
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-main();
+program.parse(process.argv);
